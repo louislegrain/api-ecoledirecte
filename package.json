@@ -1,0 +1,27 @@
+{
+  "name": "api-ecoledirecte",
+  "version": "1.0.5",
+  "description": "Un package pour utiliser facilement l'API de EcoleDirecte.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/louislegrain/api-ecoledirecte.git"
+  },
+  "keywords": [
+    "ecoledirecte",
+    "api"
+  ],
+  "author": "Louis Legrain",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/louislegrain/api-ecoledirecte/issues"
+  },
+  "homepage": "https://github.com/louislegrain/api-ecoledirecte#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "user-agents": "^1.0.921"
+  }
+}
