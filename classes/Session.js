@@ -3,9 +3,14 @@ const UserAgent = require('user-agents');
 const Eleve = require('./Eleve');
 
 module.exports = class Session {
-   constructor() {
-      this.token = '';
-      this.userAgent = new UserAgent().toString();
+   /**
+    * @constructor
+    * @param {String} [token]
+    * @param {String} [userAgent]
+    */
+   constructor(token, userAgent) {
+      this.token = token || '';
+      this.userAgent = userAgent || new UserAgent().toString();
       this.accounts = [];
    }
 
