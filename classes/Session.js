@@ -72,7 +72,7 @@ module.exports = class Session {
                   'User-Agent': this.userAgent,
                   'X-Token': this.token,
                },
-               body: `data=${JSON.stringify(payload)}`,
+               body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
             });
             const data = await res.json();
 
