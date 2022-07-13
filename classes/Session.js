@@ -76,8 +76,13 @@ module.exports = class Session {
             });
             const data = await res.json();
 
-            if (data.code < 200 || data.code >= 300) {
-               reject(data.message);
+            if (data.code !== 200) {
+               reject(
+                  {
+                     505: 'Identifiant ou mot de passe invalide',
+                     516: "L'établissement a fermé EcoleDirecte",
+                  }[data.code] || 'Une erreur est survenue'
+               );
                return;
             }
 
@@ -85,7 +90,7 @@ module.exports = class Session {
 
             resolve(data.data);
          } catch (e) {
-            reject(e);
+            reject('Une erreur est survenue');
          }
       });
    }
