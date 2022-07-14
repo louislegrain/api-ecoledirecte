@@ -81,6 +81,7 @@ module.exports = class Session {
                   {
                      505: 'Identifiant ou mot de passe invalide',
                      516: "L'établissement a fermé EcoleDirecte",
+                     535: "L'établissement a fermé EcoleDirecte",
                   }[data.code] || 'Une erreur est survenue'
                );
                return;
