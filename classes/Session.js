@@ -77,13 +77,18 @@ module.exports = class Session {
             const data = await res.json();
 
             if (data.code !== 200) {
-               reject(
-                  {
-                     505: 'Identifiant ou mot de passe invalide',
-                     516: "L'établissement a fermé EcoleDirecte",
-                     535: "L'établissement a fermé EcoleDirecte",
-                  }[data.code] || 'Une erreur est survenue'
-               );
+               reject({
+                  code: data.code,
+                  edMessage: data.message,
+                  message:
+                     {
+                        505: 'Identifiant ou mot de passe invalide',
+                        516: "L'établissement a fermé EcoleDirecte",
+                        520: 'Token invalide',
+                        525: 'Session expirée',
+                        535: "L'établissement a fermé EcoleDirecte",
+                     }[data.code] || 'Une erreur est survenue',
+               });
                return;
             }
 
@@ -91,7 +96,7 @@ module.exports = class Session {
 
             resolve(data.data);
          } catch (e) {
-            reject('Une erreur est survenue');
+            reject({ message: 'Une erreur est survenue' });
          }
       });
    }
