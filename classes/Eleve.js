@@ -20,9 +20,15 @@ module.exports = class Eleve {
     * @param {Object} compte.profile.classe
     * @param {Number} compte.profile.classe.id
     * @param {String} compte.profile.classe.libelle
+    * @param {Object[]} compte.modules
+    * @param {Number} compte.modules[].badge
+    * @param {String} compte.modules[].code
+    * @param {Boolean} compte.modules[].enable
+    * @param {Number} compte.modules[].ordre
+    * @param {Object} compte.modules[].params
     */
    constructor(session, compte) {
-      const { id, prenom, nom, sexe, photo, classe, profile } = compte;
+      const { id, prenom, nom, sexe, photo, classe, profile, modules } = compte;
 
       this.session = session;
       this.id = id;
@@ -33,6 +39,7 @@ module.exports = class Eleve {
       this.classe = classe
          ? { nom: classe.libelle, id: classe.id }
          : { nom: profile?.classe?.libelle, id: profile?.classe?.id };
+      this.modules = modules;
    }
 
    /**
