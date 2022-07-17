@@ -27,6 +27,7 @@ module.exports = class Session {
          this.request('/login.awp', {
             identifiant,
             motdepasse,
+            acceptationCharte: true,
          })
             .then(data => {
                const account = data.accounts[0];
@@ -82,6 +83,7 @@ module.exports = class Session {
                   edMessage: data.message,
                   message:
                      {
+                        240: "La charte d'utilisation n'a pas été acceptée",
                         505: 'Identifiant ou mot de passe invalide',
                         516: "L'établissement a fermé EcoleDirecte",
                         520: 'Token invalide',
