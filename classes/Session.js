@@ -65,41 +65,45 @@ module.exports = class Session {
       if (!path) throw new Error('Chemin non renseigné.');
 
       return new Promise(async (resolve, reject) => {
+         const res = await fetch(`https://api.ecoledirecte.com/v3${path}`, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/x-www-form-urlencoded',
+               'User-Agent': this.userAgent,
+               'X-Token': this.token,
+            },
+            body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
+         }).catch(() => null);
+         let data = await res?.text?.()?.catch(() => null);
+         if (!data) return reject({ message: 'Une erreur est survenue' });
+
          try {
-            const res = await fetch(`https://api.ecoledirecte.com/v3${path}`, {
-               method: 'POST',
-               headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'User-Agent': this.userAgent,
-                  'X-Token': this.token,
-               },
-               body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
-            });
-            const data = await res.json();
-
-            if (data.code !== 200) {
-               reject({
-                  code: data.code,
-                  edMessage: data.message,
-                  message:
-                     {
-                        240: "La charte d'utilisation n'a pas été acceptée",
-                        505: 'Identifiant ou mot de passe invalide',
-                        516: "L'établissement a fermé EcoleDirecte",
-                        520: 'Token invalide',
-                        525: 'Session expirée',
-                        535: "L'établissement a fermé EcoleDirecte",
-                     }[data.code] || 'Une erreur est survenue',
-               });
-               return;
-            }
-
-            this.token = data.token;
-
-            resolve(data.data);
+            data = JSON.parse(data);
          } catch (e) {
-            reject({ message: 'Une erreur est survenue' });
+            return reject({ message: 'Une erreur est survenue', edMessage: data });
          }
+
+         if (data.code !== 200) {
+            reject({
+               code: data.code,
+               edMessage: data.message,
+               message:
+                  {
+                     210: 'Aucune donnée disponible',
+                     240: "La charte d'utilisation n'a pas été acceptée",
+                     505: 'Identifiant ou mot de passe invalide',
+                     516: "L'établissement a fermé EcoleDirecte",
+                     520: 'Token invalide',
+                     525: 'Session expirée',
+                     535: "L'établissement a fermé EcoleDirecte",
+                  }[data.code] || 'Une erreur est survenue',
+            });
+            return;
+         }
+
+         this.token = data.token;
+
+         resolve(data.data);
       });
    }
 };
