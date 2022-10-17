@@ -32,7 +32,7 @@ module.exports = class Session {
             .then(data => {
                const account = data.accounts[0];
                const type =
-                  account.typeCompte === '1'
+                  account.typeCompte === '1' || account.typeCompte === '2'
                      ? 'FAMILLE'
                      : account.typeCompte === 'E'
                      ? 'ELEVE'

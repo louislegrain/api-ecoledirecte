@@ -29,10 +29,10 @@ const session = new Session();
 
 (async () => {
    await session.login('identifiant', 'motdepasse').catch(err => {
-      console.log('Impossible de se connecter : ' + err);
+      console.log('Impossible de se connecter', err);
    });
 
-   const notes = await session.accounts?.[0].fetchNotes();
+   const notes = await session.accounts[0]?.fetchNotes();
    console.log(notes);
 })();
 ```
