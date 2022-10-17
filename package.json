@@ -1,6 +1,6 @@
 {
   "name": "api-ecoledirecte",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Un package pour utiliser facilement l'API de EcoleDirecte.",
   "main": "index.js",
   "scripts": {
