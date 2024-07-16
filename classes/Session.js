@@ -19,7 +19,51 @@ module.exports = class Session {
     * @param {String} motdepasse
     * @returns {Promise}
     */
-   login(identifiant, motdepasse) {
+   fetch2FAQuestion(identifiant, motdepasse) {
+      if (!identifiant || !motdepasse)
+         throw new Error("Nom d'utilisateur ou mot de passe non renseigné.");
+
+      return new Promise(async (resolve, reject) => {
+         await this.login(identifiant, motdepasse).catch(() => null); // fetch token
+
+         this.request('/connexion/doubleauth.awp?verbe=get')
+            .then(data =>
+               resolve({
+                  rawQuestion: data.question,
+                  rawPropositions: data.propositions,
+                  question: Buffer.from(data.question, 'base64').toString('utf8'),
+                  propositions: data.propositions.map(proposition =>
+                     Buffer.from(proposition, 'base64').toString('utf8')
+                  ),
+               })
+            )
+            .catch(err => reject(err));
+      });
+   }
+
+   /**
+    * @param {String} choix
+    * @returns {Promise}
+    */
+   fetch2FACreds(choix) {
+      if (!choix) throw new Error('Choix non renseigné.');
+
+      return new Promise((resolve, reject) => {
+         this.request('/connexion/doubleauth.awp?verbe=post', { choix })
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+      });
+   }
+
+   /**
+    * @param {String} identifiant
+    * @param {String} motdepasse
+    * @param {Object} fa
+    * @param {String} fa.cn
+    * @param {String} fa.cv
+    * @returns {Promise}
+    */
+   login(identifiant, motdepasse, fa) {
       if (!identifiant || !motdepasse)
          throw new Error("Nom d'utilisateur ou mot de passe non renseigné.");
 
@@ -28,6 +72,7 @@ module.exports = class Session {
             identifiant,
             motdepasse,
             acceptationCharte: true,
+            ...fa,
          })
             .then(data => {
                const account = data.accounts[0];
@@ -83,6 +128,8 @@ module.exports = class Session {
             return reject({ message: 'Une erreur est survenue', edMessage: data });
          }
 
+         if (data.token) this.token = data.token;
+
          if (data.code !== 200) {
             reject({
                code: data.code,
@@ -93,6 +140,7 @@ module.exports = class Session {
                      240: "La charte d'utilisation n'a pas été acceptée",
                      505: 'Identifiant ou mot de passe invalide',
                      516: "L'établissement a fermé EcoleDirecte",
+                     518: "Impossible de se connecter : la fiche utilisateur n'existe pas",
                      520: 'Token invalide',
                      525: 'Session expirée',
                      535: "L'établissement a fermé EcoleDirecte",
@@ -100,8 +148,6 @@ module.exports = class Session {
             });
             return;
          }
-
-         this.token = data.token;
 
          resolve(data.data);
       });
