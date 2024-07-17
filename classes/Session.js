@@ -24,7 +24,12 @@ module.exports = class Session {
          throw new Error("Nom d'utilisateur ou mot de passe non renseigné.");
 
       return new Promise(async (resolve, reject) => {
-         await this.login(identifiant, motdepasse).catch(() => null); // fetch token
+         const success = await this.login(identifiant, motdepasse).catch(err => {
+            if (err.code === 250) return true;
+            reject(err);
+            return false;
+         }); // fetch token
+         if (!success) return;
 
          this.request('/connexion/doubleauth.awp?verbe=get')
             .then(data =>
