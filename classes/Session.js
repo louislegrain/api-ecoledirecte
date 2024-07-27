@@ -88,7 +88,7 @@ module.exports = class Session {
                      ? 'ELEVE'
                      : null;
                if (!type) {
-                  reject("Ce type de compte n'est pas pris en charge.");
+                  reject({ message: "Ce type de compte n'est pas pris en charge." });
                   return;
                }
 
