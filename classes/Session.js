@@ -150,6 +150,7 @@ module.exports = class Session {
                   {
                      210: 'Aucune donnée disponible',
                      240: "La charte d'utilisation n'a pas été acceptée",
+                     250: 'Authentification à deux facteurs requise',
                      505: 'Identifiant ou mot de passe invalide',
                      516: "L'établissement a fermé EcoleDirecte",
                      518: "Impossible de se connecter : la fiche utilisateur n'existe pas",
