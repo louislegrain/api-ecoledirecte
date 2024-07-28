@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const UserAgent = require('user-agents');
 const Eleve = require('./Eleve');
+const errors = require('../utils/errors.json');
 
 module.exports = class Session {
    /**
@@ -132,12 +133,12 @@ module.exports = class Session {
             body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
          }).catch(() => null);
          let data = await res?.text?.()?.catch(() => null);
-         if (!data) return reject({ message: 'Une erreur est survenue' });
+         if (!data) return reject({ message: errors.default });
 
          try {
             data = JSON.parse(data);
          } catch (e) {
-            return reject({ message: 'Une erreur est survenue', edMessage: data });
+            return reject({ message: errors.default, edMessage: data });
          }
 
          if (data.token) this.token = data.token;
@@ -146,18 +147,7 @@ module.exports = class Session {
             reject({
                code: data.code,
                edMessage: data.message,
-               message:
-                  {
-                     210: 'Aucune donnée disponible',
-                     240: "La charte d'utilisation n'a pas été acceptée",
-                     250: 'Authentification à deux facteurs requise',
-                     505: 'Identifiant ou mot de passe invalide',
-                     516: "L'établissement a fermé EcoleDirecte",
-                     518: "Impossible de se connecter : la fiche utilisateur n'existe pas",
-                     520: 'Token invalide',
-                     525: 'Session expirée',
-                     535: "L'établissement a fermé EcoleDirecte",
-                  }[data.code] || 'Une erreur est survenue',
+               message: errors[data.code] || errors.default,
             });
             return;
          }

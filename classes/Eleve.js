@@ -1,5 +1,5 @@
 const Session = require('./Session');
-const dateToString = require('../functions/dateToString');
+const dateToString = require('../utils/dateToString');
 
 module.exports = class Eleve {
    /**
