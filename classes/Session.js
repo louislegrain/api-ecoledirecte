@@ -16,6 +16,26 @@ module.exports = class Session {
    }
 
    /**
+    * @returns {Promise}
+    */
+   fetchGTKToken() {
+      return new Promise(async (resolve, reject) => {
+         const res = await fetch('https://api.ecoledirecte.com/v3/login.awp?gtk=1&v=4.80.2', {
+            headers: {
+               'User-Agent': this.userAgent,
+            },
+         }).catch(() => null);
+
+         const match = res?.headers
+            .get('set-cookie')
+            ?.match(/GTK=([^;]+);.+domain=ecoledirecte\.com, (.+)=\1/);
+
+         if (!match) return reject({ message: 'Impossible de récupérer le token GTK.' });
+         resolve([match[1], `GTK=${match[1]}; ${match[2]}=${match[1]}`]);
+      });
+   }
+
+   /**
     * @param {String} identifiant
     * @param {String} motdepasse
     * @returns {Promise}
@@ -80,13 +100,26 @@ module.exports = class Session {
       if (!identifiant || !motdepasse)
          throw new Error("Nom d'utilisateur ou mot de passe non renseigné.");
 
-      return new Promise((resolve, reject) => {
-         this.request('/login.awp', {
-            identifiant,
-            motdepasse,
-            acceptationCharte: true,
-            ...fa,
-         })
+      return new Promise(async (resolve, reject) => {
+         const gtkToken = await this.fetchGTKToken().catch(err => {
+            reject(err);
+            return null;
+         });
+         if (!gtkToken) return;
+
+         this.request(
+            '/login.awp',
+            {
+               identifiant,
+               motdepasse,
+               acceptationCharte: true,
+               ...fa,
+            },
+            {
+               'X-Gtk': gtkToken[0],
+               Cookie: gtkToken[1],
+            }
+         )
             .then(data => {
                const account = data.accounts[0];
                const type =
@@ -119,7 +152,7 @@ module.exports = class Session {
     * @param {Object} [payload]
     * @returns {Promise}
     */
-   request(path, payload = {}) {
+   request(path, payload = {}, headers = {}) {
       if (!path) throw new Error('Chemin non renseigné.');
 
       return new Promise(async (resolve, reject) => {
@@ -129,6 +162,7 @@ module.exports = class Session {
                'Content-Type': 'application/x-www-form-urlencoded',
                'User-Agent': this.userAgent,
                'X-Token': this.token,
+               ...headers,
             },
             body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
          }).catch(() => null);
