@@ -11,6 +11,7 @@ module.exports = class Session {
     */
    constructor(token, userAgent) {
       this.token = token || '';
+      this['2faToken'] = token || '';
       this.userAgent = userAgent || new UserAgent().toString();
       this.accounts = [];
    }
@@ -162,6 +163,7 @@ module.exports = class Session {
                'Content-Type': 'application/x-www-form-urlencoded',
                'User-Agent': this.userAgent,
                'X-Token': this.token,
+               '2fa-Token': this['2faToken'],
                ...headers,
             },
             body: new URLSearchParams({ data: JSON.stringify(payload) }).toString(),
@@ -176,6 +178,7 @@ module.exports = class Session {
          }
 
          if (data.token) this.token = data.token;
+         if (res.headers.get('2fa-Token')) this['2faToken'] = res.headers.get('2fa-Token');
 
          if (data.code !== 200) {
             reject({
