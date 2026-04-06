@@ -8,11 +8,13 @@ module.exports = class Session {
     * @constructor
     * @param {String} [token]
     * @param {String} [userAgent]
+    * @param {String} [apiVersion='4.97.2']
     */
-   constructor(token, userAgent) {
+   constructor(token, userAgent, apiVersion = '4.97.2') {
       this.token = token || '';
       this['2faToken'] = token || '';
       this.userAgent = userAgent || new UserAgent().toString();
+      this.apiVersion = apiVersion;
       this.accounts = [];
    }
 
@@ -21,11 +23,14 @@ module.exports = class Session {
     */
    fetchGTKToken() {
       return new Promise(async (resolve, reject) => {
-         const res = await fetch('https://api.ecoledirecte.com/v3/login.awp?gtk=1&v=4.80.2', {
-            headers: {
-               'User-Agent': this.userAgent,
-            },
-         }).catch(() => null);
+         const res = await fetch(
+            `https://api.ecoledirecte.com/v3/login.awp?gtk=1&v=${this.apiVersion}`,
+            {
+               headers: {
+                  'User-Agent': this.userAgent,
+               },
+            }
+         ).catch(() => null);
 
          const match = res?.headers
             .get('set-cookie')
@@ -157,7 +162,10 @@ module.exports = class Session {
       if (!path) throw new Error('Chemin non renseigné.');
 
       return new Promise(async (resolve, reject) => {
-         const res = await fetch(`https://api.ecoledirecte.com/v3${path}`, {
+         const url = new URL(`https://api.ecoledirecte.com/v3${path}`);
+         url.searchParams.set('v', this.apiVersion);
+
+         const res = await fetch(url.toString(), {
             method: 'POST',
             headers: {
                'Content-Type': 'application/x-www-form-urlencoded',
